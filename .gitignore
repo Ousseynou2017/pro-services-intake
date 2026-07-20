@@ -35,6 +35,10 @@ yarn-error.log*
 # ...except the placeholder template used for setup (contains no secrets)
 !.env.local.example
 
+# notes internes (jamais visibles par un client)
+CLAUDE.md
+NOTES.md
+
 # vercel
 .vercel
 
