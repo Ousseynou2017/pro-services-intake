@@ -1,19 +1,50 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-paper: #faf7f1;
+  --color-paper: #f6f3ec;
   --color-card: #fffdf8;
-  --color-ink: #16191c;
+  --color-ink: #14181c;
   --color-muted: #5a6169;
-  --color-line: #e9e2d5;
-  --color-accent: #14453d;
-  --color-accent-soft: #edf1ee;
+  --color-line: #e7e0d3;
+  --color-accent: #12463d;
+  --color-accent-2: #1c5f52;
+  --color-accent-soft: #ecf1ee;
+  --color-gold: #b7935a;
 
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-instrument-serif);
+
+  --shadow-soft: 0 1px 2px rgba(20, 24, 28, 0.04),
+    0 8px 24px -12px rgba(20, 24, 28, 0.12);
+  --shadow-lift: 0 2px 4px rgba(20, 24, 28, 0.05),
+    0 18px 40px -16px rgba(18, 70, 61, 0.22);
 }
 
 body {
   background: var(--color-paper);
   color: var(--color-ink);
+}
+
+/* Warm editorial backdrop for the hero: two soft light pools on paper. */
+.hero-surface {
+  background:
+    radial-gradient(
+      60% 55% at 82% 8%,
+      rgba(28, 95, 82, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      50% 50% at 8% 90%,
+      rgba(183, 147, 90, 0.1),
+      transparent 60%
+    );
+}
+
+/* Hairline grid overlay, barely visible — adds craft without noise. */
+.grid-lines {
+  background-image:
+    linear-gradient(to right, rgba(20, 24, 28, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 24, 28, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(80% 70% at 50% 30%, black, transparent 78%);
 }

@@ -118,7 +118,7 @@ export default function IntakeForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="rounded-2xl border border-line bg-card p-6 sm:p-7"
+      className="rounded-2xl border border-line bg-card p-6 shadow-[var(--shadow-soft)] sm:p-7"
     >
       {/* Progress */}
       <div className="flex items-center gap-3">

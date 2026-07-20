@@ -158,6 +158,15 @@ function Dashboard({ user }: { user: User }) {
     return copy;
   }, [rows, newestFirst]);
 
+  const counts = useMemo(
+    () => ({
+      new: rows.filter((r) => r.status === "new").length,
+      contacted: rows.filter((r) => r.status === "contacted").length,
+      archived: rows.filter((r) => r.status === "archived").length,
+    }),
+    [rows],
+  );
+
   async function updateStatus(id: string, status: RequestRow["status"]) {
     // Optimistic: reflect the change immediately, roll back if the write fails.
     const previous = rows;
@@ -173,26 +182,58 @@ function Dashboard({ user }: { user: User }) {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <>
+      <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
+          <span className="flex items-center gap-2 font-serif text-lg tracking-tight">
+            <span className="grid h-6 w-6 place-items-center rounded-md bg-accent text-xs text-white">
+              A
+            </span>
+            Atlas · Admin
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="hidden text-sm text-muted sm:inline">
+              {user.email}
+            </span>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="rounded-full border border-line px-4 py-1.5 text-sm transition-colors hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-3xl">Requests</h1>
-          <p className="mt-1 text-sm text-muted">{user.email}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-accent-2">
+            Request inbox
+          </p>
+          <h1 className="mt-2 font-serif text-3xl sm:text-4xl">Requests</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setNewestFirst((v) => !v)}
-            className="rounded-full border border-line px-4 py-2 text-sm transition-colors hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        <button
+          onClick={() => setNewestFirst((v) => !v)}
+          className="rounded-full border border-line bg-card px-4 py-2 text-sm shadow-[var(--shadow-soft)] transition-colors hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          Date {newestFirst ? "↓ newest" : "↑ oldest"}
+        </button>
+      </div>
+
+      {/* Status summary */}
+      <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
+        {(["new", "contacted", "archived"] as const).map((key) => (
+          <div
+            key={key}
+            className="rounded-xl border border-line bg-card p-4 shadow-[var(--shadow-soft)]"
           >
-            Date {newestFirst ? "↓ newest" : "↑ oldest"}
-          </button>
-          <button
-            onClick={() => supabase.auth.signOut()}
-            className="rounded-full border border-line px-4 py-2 text-sm transition-colors hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-            Sign out
-          </button>
-        </div>
+            <div className="font-serif text-3xl">{counts[key]}</div>
+            <div className="mt-0.5 text-xs uppercase tracking-wide text-muted">
+              {key}
+            </div>
+          </div>
+        ))}
       </div>
 
       {loadError && (
@@ -208,9 +249,9 @@ function Dashboard({ user }: { user: User }) {
       ) : (
         <>
           {/* Desktop table */}
-          <div className="mt-8 hidden overflow-hidden rounded-2xl border border-line md:block">
+          <div className="mt-8 hidden overflow-hidden rounded-2xl border border-line bg-card shadow-[var(--shadow-soft)] md:block">
             <table className="w-full text-left text-sm">
-              <thead className="bg-card text-muted">
+              <thead className="border-b border-line bg-accent-soft text-xs uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Date</th>
                   <th className="px-4 py-3 font-medium">Contact</th>
@@ -221,7 +262,10 @@ function Dashboard({ user }: { user: User }) {
               </thead>
               <tbody>
                 {sorted.map((row) => (
-                  <tr key={row.id} className="border-t border-line align-top">
+                  <tr
+                    key={row.id}
+                    className="border-t border-line align-top transition-colors hover:bg-paper/60"
+                  >
                     <td className="whitespace-nowrap px-4 py-3 text-muted">
                       {formatDate(row.created_at)}
                     </td>
@@ -253,7 +297,7 @@ function Dashboard({ user }: { user: User }) {
             {sorted.map((row) => (
               <div
                 key={row.id}
-                className="rounded-2xl border border-line bg-card p-4"
+                className="rounded-2xl border border-line bg-card p-4 shadow-[var(--shadow-soft)]"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -282,7 +326,8 @@ function Dashboard({ user }: { user: User }) {
           </div>
         </>
       )}
-    </main>
+      </main>
+    </>
   );
 }
 
