@@ -1,23 +1,5 @@
-const services = [
-  {
-    name: "Operations Audit",
-    summary:
-      "We map how work actually moves through your company, then remove the steps that cost you time and margin.",
-    points: ["Process mapping", "Tooling review", "90-day fix plan"],
-  },
-  {
-    name: "Financial Planning",
-    summary:
-      "Forecasts you can defend in a board meeting, built on your real numbers rather than a template.",
-    points: ["Cash-flow modelling", "Pricing review", "Scenario planning"],
-  },
-  {
-    name: "Growth Strategy",
-    summary:
-      "A focused plan for the next twelve months, sized to the team and budget you actually have.",
-    points: ["Market positioning", "Channel selection", "Quarterly roadmap"],
-  },
-];
+import IntakeForm from "./intake-form";
+import { services } from "@/lib/services";
 
 export default function Home() {
   return (
@@ -95,8 +77,8 @@ export default function Home() {
             Tell us what you need. The questions adapt to the service you pick,
             so you only answer what is relevant.
           </p>
-          <div className="mt-7 rounded-2xl border border-line bg-card p-6 sm:p-7">
-            <p className="text-base text-muted">Intake form coming next.</p>
+          <div className="mt-7">
+            <IntakeForm />
           </div>
         </section>
       </main>
