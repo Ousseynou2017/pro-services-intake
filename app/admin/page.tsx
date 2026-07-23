@@ -168,16 +168,30 @@ function Dashboard({ user }: { user: User }) {
   );
 
   async function updateStatus(id: string, status: RequestRow["status"]) {
-    // Optimistic: reflect the change immediately, roll back if the write fails.
     const previous = rows;
     setRows((r) => r.map((row) => (row.id === id ? { ...row, status } : row)));
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("requests")
       .update({ status })
+      .eq("id", id)
+      .select();
+    if (error || !data?.length) {
+      setRows(previous);
+      setLoadError("Could not update that request. Please retry.");
+    }
+  }
+
+  async function deleteRequest(id: string) {
+    if (!window.confirm("Delete this request permanently?")) return;
+    const previous = rows;
+    setRows((r) => r.filter((row) => row.id !== id));
+    const { error } = await supabase
+      .from("requests")
+      .delete()
       .eq("id", id);
     if (error) {
       setRows(previous);
-      setLoadError("Could not update that request. Please retry.");
+      setLoadError("Could not delete that request. Please retry.");
     }
   }
 
@@ -258,6 +272,7 @@ function Dashboard({ user }: { user: User }) {
                   <th className="px-4 py-3 font-medium">Service</th>
                   <th className="px-4 py-3 font-medium">Details</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium"></th>
                 </tr>
               </thead>
               <tbody>
@@ -285,6 +300,14 @@ function Dashboard({ user }: { user: User }) {
                         value={row.status}
                         onChange={(s) => updateStatus(row.id, s)}
                       />
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => deleteRequest(row.id)}
+                        className="rounded-full border border-red-200 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-red-400"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -315,11 +338,17 @@ function Dashboard({ user }: { user: User }) {
                 <div className="mt-2">
                   <Answers answers={row.answers} />
                 </div>
-                <div className="mt-4">
+                <div className="mt-4 flex items-center justify-between gap-3">
                   <StatusSelect
                     value={row.status}
                     onChange={(s) => updateStatus(row.id, s)}
                   />
+                  <button
+                    onClick={() => deleteRequest(row.id)}
+                    className="rounded-full border border-red-200 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-red-400"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}

@@ -39,3 +39,9 @@ create policy "admins can update requests"
   to authenticated
   using (true)
   with check (true);
+
+drop policy if exists "admins can delete requests" on public.requests;
+create policy "admins can delete requests"
+  on public.requests for delete
+  to authenticated
+  using (true);
