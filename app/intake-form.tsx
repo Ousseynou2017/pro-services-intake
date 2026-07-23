@@ -54,6 +54,40 @@ export default function IntakeForm() {
     return next;
   }
 
+  /** Same rules as validate(), but for a single field and a candidate value. */
+  function fieldError(id: string, value: string): string {
+    const v = value.trim();
+    if (id === "name") return v ? "" : "Please tell us your name.";
+    if (id === "email") {
+      if (!v) return "Please enter an email address.";
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+        ? ""
+        : "That does not look like a valid email address.";
+    }
+    const question = questions.find((q) => q.id === id);
+    if (question) {
+      if (!v) return "This field is required.";
+      if (question.type === "textarea" && v.length < 10)
+        return "Please give us a little more detail.";
+    }
+    return "";
+  }
+
+  /** On change, refresh a field's error only if it already had one, so the
+   *  message clears as soon as the field becomes valid — without flagging
+   *  fields the user has not submitted yet. */
+  function revalidate(id: string, value: string) {
+    setErrors((prev) => {
+      if (!prev[id]) return prev;
+      const message = fieldError(id, value);
+      if (message === prev[id]) return prev;
+      const next = { ...prev };
+      if (message) next[id] = message;
+      else delete next[id];
+      return next;
+    });
+  }
+
   function goNext() {
     const found = validate(step);
     setErrors(found);
@@ -142,7 +176,10 @@ export default function IntakeForm() {
               id="name"
               className={`${fieldClass} mt-1.5`}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                revalidate("name", e.target.value);
+              }}
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? "name-error" : undefined}
             />
@@ -158,7 +195,10 @@ export default function IntakeForm() {
               type="email"
               className={`${fieldClass} mt-1.5`}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                revalidate("email", e.target.value);
+              }}
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
             />
@@ -223,8 +263,10 @@ export default function IntakeForm() {
 
           {questions.map((question) => {
             const value = answers[question.id] ?? "";
-            const setValue = (v: string) =>
+            const setValue = (v: string) => {
               setAnswers({ ...answers, [question.id]: v });
+              revalidate(question.id, v);
+            };
             const invalid = !!errors[question.id];
             const describedBy = invalid ? `${question.id}-error` : undefined;
 
